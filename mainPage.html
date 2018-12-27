@@ -1,0 +1,78 @@
+<html>
+    <head>
+        <title>
+            JS Personal Task - Alena Shaadt
+        </title> 
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    </head>
+    <body>
+        <div id="result" data-bind="text : name"></div>
+        <button data-bind="click: loadData">Click me...</button>
+        <script type="text/javascript" src="js/q.js"></script>
+        <script type="text/javascript" src="js/o.min.js"></script>
+        <script type="text/javascript" src="js/odatajs-4.0.0.min.js"></script>
+        <script type="text/javascript" src="js/knockout-3.2.0.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script>
+            function Book(id, title) {
+                this.id = id;
+                this.title = title;
+            }
+
+            function BookViewModel() {
+                this.id = ko.observable('defaultID');
+                this.title = ko.observable('defaultTitle');
+                //this.author = ko.observable('defaultAuthor');
+            loadData = function(){                      
+                // WORKED   
+//                    o('https://services.odata.org/V4/(S(wptr35qf3bz4kb5oatn432ul))/TripPinServiceRW/People(\'Russell Whyte\')').get().then(function(result) {
+//                    result.data.FirstName = 'New Name';
+//                    return(result.save());
+//                }).then(function(result) {
+//                    console.log('First name is now New Name');
+//                });
+                
+                o().config({
+	endpoint: 'http://samples.databoom.space/api1/sampledb/collections/allobjects'
+});
+                //WORKED POST 
+//            o('People').post({
+//            UserName:'nametest',
+//            FirstName:'foo',
+//            LastName:'bar'
+//    }).save().then(function(result) {
+//                alert('User created successfully!');
+//            });
+                
+//                o('People').delete({
+//            UserName:'nametest',
+//    }).save().then(function(result) {
+////    }).then(function(result) {
+////        result.delete();
+////        return(result.save());
+////    }).then(function() {
+//       console.log('A person was deleted.');
+//                    
+//    }); 
+                //POST, PUT AND DELETE
+            o('').post({
+            id:'test',
+            title:'testtitle'
+    }).save().then(function(result) {
+         var oHandler = o('')
+            .find(('\'' + result.data.id + '\''))
+            .patch({ id: 'new id' });
+        return(oHandler.save());
+    }).then(function(result) {
+        result.delete();
+        return(result.save());
+    }).then(function() {
+       console.log('A person was added, modified and deleted.');
+    });
+            }
+            }
+            
+            ko.applyBindings(BookViewModel);
+        </script>
+    </body>
+</html>

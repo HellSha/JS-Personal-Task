@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <base href="http://demos.telerik.com/kendo-ui/grid/remote-data-binding">
+    <style>html {font-size: 12px;font-family: Arial, Helvetica, sans-serif;}
+        body {margin: 0;}
+    </style>
+    <title></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.3.1316/styles/kendo.common.min.css" />
+    <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.3.1316/styles/kendo.default.min.css" />
+
+    <script src="http://cdn.kendostatic.com/2014.3.1316/js/jquery.min.js"></script>
+    <script src="http://cdn.kendostatic.com/2014.3.1316/js/kendo.all.min.js"></script>
+</head>
+<body>
+    <button id="odataPage" type="button" class="btn btn-primary">oData Testing</button>
+    <table id="added-articles" class="table">
+            <tr>
+                <th>User Name</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Male</th>
+                <th>Age</th>
+            </tr>
+    </table>
+    <div id="test"></div>
+    <div id="example">
+        <div id="grid"></div>
+        
+        <script>
+            function Person(username, firstname, lastname, gender, age) {
+              this.username = username;
+              this.firstname = firstname;
+              this.lastname = lastname;
+              this.gender = gender;
+              this.age = age;
+            }
+            
+            function getObjects(data){
+                var personsArray = [];                    
+                    $.each(data.value, function (key, data) {
+                        var person = new Person(data.UserName, data.FirstName, data.LastName, data.Gender, data.Age);
+                            personsArray.push(person);
+                           //alert(data.UserName + "," + data.FirstName + "," + data.LastName);
+                        })
+                return personsArray;
+            }
+            
+            function showData(personArray){
+                //add length cheking
+                var trHTML = '';
+                for (i = 0; i < personArray.length; i++) {
+                  trHTML += '<tr><td>' + personArray[i].username + '</td><td>' + personArray[i].firstname + '</td><td>' + personArray[i].lastname + '</td><td>' + personArray[i].gender  + '</td><td>' + personArray[i].age  + '</td></tr>';
+                } 
+                $('#added-articles').append(trHTML);
+            }
+            
+         $(document).ready(function () {
+             
+             
+             //put
+             $.ajax({
+                type: "PUT",
+                async: true,
+                url: "https://services.odata.org/TripPinRESTierService/(S(2yzx01x2sy3s2iexbiibx10q))/People('russellwhyte')",
+                headers: {"Access-Control-Allow-Method": "POST,PUT,DELETE,PATCH"},
+                success: function (data) {
+                    //var filtedPeople = data.value;
+                    //////FINAL VARIANT//////////////////////////////////////
+//                    var jsonArray = JSON.stringify(data.value);
+                    console.log("deleted!"); 
+//                    
+                   
+                    
+                },
+                error: function ( textStatus, errorMessage) {
+                    alert(errorMessage);
+                }
+            });
+            });
+             
+             //delete
+//             $.ajax({
+//                type: "DELETE",
+//                async: true,
+//                url: "http://samples.databoom.space/api1/sampledb/collections/allobjects('book38')",
+//                headers: {"Access-Control-Allow-Method": "POST,PUT,DELETE,PATCH"},
+//                success: function (data) {
+//                    //var filtedPeople = data.value;
+//                    //////FINAL VARIANT//////////////////////////////////////
+////                    var jsonArray = JSON.stringify(data.value);
+//                    console.log("deleted!"); 
+////                    
+//                   
+//                    
+//                },
+//                error: function (textStatus, errorMessage) {
+//                    alert(errorMessage);
+//                }
+//            });
+//            });
+             
+             //PATCH   
+//            $.ajax({
+//                type: "PATCH",
+//                async: true,
+//                url: "http://samples.databoom.space/api1/sampledb/collections/allobjects('book38')",
+//                headers: {"Access-Control-Allow-Method": "POST,PUT,DELETE,PATCH"},
+//                success: function (data) {
+//                    //var filtedPeople = data.value;
+//                    //////FINAL VARIANT//////////////////////////////////////
+////                    var jsonArray = JSON.stringify(data.value);
+////                    console.log(jsonArray); 
+////                    
+//                    $.each(data.value, function (key, data) {
+//                           alert(data.id);
+//                        })
+//                    
+//                },
+//                error: function (xhr, textStatus, errorMessage) {
+//                    alert(errorMessage);
+//                }
+//            });
+  //          });
+             
+            //GET by Lambda Operators oData Filtering
+//              $.ajax({
+//                type: "get",
+//                async: true,
+//                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People?$filter=Emails/any(s:startswith(s, 'Laurel'))",
+//                success: function (data) {
+//                    var info = JSON.stringify(data);
+//                    
+////                        $.each(info, function (key, data) {
+////                            alert(data.UserName + "," + data.FirstName + "," + data.LastName);
+////                        })
+//                    alert(JSON.stringify(data));
+//                    //alert(data.ID);
+//                    $('#test').html(info);
+//                },
+//                error: function (xhr, textStatus, errorMessage) {
+//                    alert(errorMessage);
+//                }
+//            });
+//         });
+             
+             
+                         
+             ////CORP ERROR IN POST REQUEST
+//             var WEBSERVICE_URL = "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People";
+//                $.ajax({
+//                    url: WEBSERVICE_URL,
+//                    type: "POST",
+//                    dataType: "json",
+//                    username: "user",
+//                    password: "password",
+//                    processData: false,
+//             crossDomain: true,
+//                    contentType: "application/json",
+//                    success: function () {
+//                        alert("success");
+//                    },
+//                    error: function (xhr, ajaxOptions, thrownError) { //Add these parameters to display the required response
+//                        alert(xhr.status);
+//                        alert(xhr.responseText);
+//                    },
+//                });
+             
+             
+             //works good 
+        //GET by Search oData Filtering
+//             $.ajax({
+//                type: "get",
+//                async: true,
+//                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People?$search=Male",
+//                success: function (data) {
+//                    //var info = JSON.stringify(data);
+//                    console.log(data);
+//                    showData(getObjects(data));
+//                    
+////                        $.each(info, function (key, data) {
+////                            alert(data.UserName + "," + data.FirstName + "," + data.LastName);
+////                        })
+//                    //alert(JSON.stringify(data));
+//                    //alert(data.ID);
+//                    //$('#test').html(info);
+//                },
+//                error: function (xhr, textStatus, errorMessage) {
+//                    alert(errorMessage);
+//                }
+//            });
+//            });
+//             
+             
+//        //GET by Select oData Filtering
+//              $.ajax({
+//                type: "get",
+//                async: true,
+//                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People?$select=UserName, Gender",
+//                success: function (data) {
+//                    var info = JSON.stringify(data);
+//                    
+//                        $.each(info, function (key, data) {
+//                            alert(data.UserName + "," + data.FirstName + "," + data.LastName);
+//                        })
+//                    //alert(JSON.stringify(data));
+//                    //alert(data.ID);
+//                    $('#test').html(info);
+//                },
+//                error: function (xhr, textStatus, errorMessage) {
+//                    alert(errorMessage);
+//                }
+//            });
+//         });
+    
+             
+        //GET by ID oData Filtering
+//             $.ajax({
+//                type: "get",
+//                async: true,
+//                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People('russellwhyte') ",
+//                success: function (data) {
+//                    var info = JSON.stringify(data);
+//                    
+////                        $.each(info, function (key, data) {
+////                            alert(data.UserName + "," + data.FirstName + "," + data.LastName);
+////                        })
+//                    //alert(JSON.stringify(data));
+//                    //alert(data.ID);
+//                    $('#test').html(info);
+//                },
+//                error: function (xhr, textStatus, errorMessage) {
+//                    alert(errorMessage);
+//                }
+//            });
+    
+    
+   
+
+            
+         //GET using AJAX Request     
+//            $.ajax({
+//                type: "get",
+//                async: true,
+//                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People",
+//                success: function (data) {
+//                    //var filtedPeople = data.value;
+//                    //////FINAL VARIANT//////////////////////////////////////
+////                    var jsonArray = JSON.stringify(data.value);
+////                    console.log(jsonArray);
+////                    
+//                    $.each(data.value, function (key, data) {
+//                           alert(data.UserName + "," + data.FirstName + "," + data.LastName);
+//                        })
+//                    
+//                },
+//                error: function (xhr, textStatus, errorMessage) {
+//                    alert(errorMessage);
+//                }
+//            });
+//            });
+            
+            
+   /*         
+            
+            // GET and display info from the 2-d link using Kendo UI framework 
+            $(document).ready(function () {
+                $("#grid").kendoGrid({
+                    dataSource: {
+                        type: "odata",
+                        transport: {
+                            read: "http://samples.databoom.space/api1/sampledb/collections/allobjects",
+                            create: { url: "http://samples.databoom.space/api1/sampledb/collections/allobjects" },
+                            update: { url: "http://samples.databoom.space/api1/sampledb/collections/allobjects" },
+                            destroy: { url: function (data) { 
+                                return "http://samples.databoom.space/api1/sampledb/collections/allobjects(" + data.id + ")";
+                            } }
+                        },
+                        pageSize: 20,
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true,
+                        schema: { model: { id: "id" } }
+                    },
+                    filterable: true, editable: true, toolbar: ["create", "save", "cancel"],
+                    sortable: true,
+                    pageable: true,
+                    columns: ["firstname", "lastname", "username", "gender", "age",
+                          { command: "destroy", title: " ", width: 150 }]
+                });
+            });
+*/
+        </script>
+<!--
+        <script type="text/javascript" src="js/odatajs-4.0.0.min.js"></script>
+        <script type="text/javascript" src="js/o.min.js"></script>
+-->
+    </div>
+</body>
+</html>
