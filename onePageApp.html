@@ -15,16 +15,33 @@
     <script src="http://cdn.kendostatic.com/2014.3.1316/js/kendo.all.min.js"></script>
 </head>
 <body>
-    <button id="odataPage" type="button" class="btn btn-primary">oData Testing</button>
+    <table id="navigation">
+        <tr>
+            <th><button id="odataPage" type="button" class="btn btn-primary">oData Testing</button></th>
+            <th><button id="odataPage" type="button" class="btn btn-primary">oData Testing</button></th>
+            <th><button id="odataPage" type="button" class="btn btn-primary">oData Testing</button></th>
+            <th><button id="odataPage" type="button" class="btn btn-primary">oData Testing</button></th>
+        </tr>
+    </table>
+    
+    
     <table id="added-articles" class="table">
             <tr>
                 <th>User Name</th>
                 <th>First Name</th>
                 <th>Last Name</th>
-                <th>Male</th>
+                <th>Gender</th>
                 <th>Age</th>
             </tr>
     </table>
+    ПОКАЗАТЬ ФОРМУ ТОЛЬКО ЕСЛИ НУЖНО: ДЛИНА МАССИВА РАВНА 1
+     <form id="getoutput" style="display:none">
+          User Name: <input type="text" id="uname" value="" disabled><br>
+          First Name: <input type="text" id="fname" value="" disabled><br>
+          Last name: <input type="text" id="lname" value="" disabled><br>
+          Gender: <input type="text" id="gender" value="" disabled><br>
+          Age: <input type="text" id="age" disabled><br>
+</form> 
     <div id="test"></div>
     <div id="example">
         <div id="grid"></div>
@@ -38,48 +55,60 @@
               this.age = age;
             }
             
-            function getObjects(data){
+            function createObjectsArray(data){
                 var personsArray = [];                    
                     $.each(data.value, function (key, data) {
                         var person = new Person(data.UserName, data.FirstName, data.LastName, data.Gender, data.Age);
                             personsArray.push(person);
-                           //alert(data.UserName + "," + data.FirstName + "," + data.LastName);
                         })
                 return personsArray;
             }
             
-            function showData(personArray){
-                //add length cheking
-                var trHTML = '';
-                for (i = 0; i < personArray.length; i++) {
-                  trHTML += '<tr><td>' + personArray[i].username + '</td><td>' + personArray[i].firstname + '</td><td>' + personArray[i].lastname + '</td><td>' + personArray[i].gender  + '</td><td>' + personArray[i].age  + '</td></tr>';
-                } 
-                $('#added-articles').append(trHTML);
+            function createOneObject(data){
+                 var person = new Person(data.UserName, data.FirstName, data.LastName, data.Gender, data.Age);
+                return person;
             }
+            
+            function displayPerson(person){
+                 document.getElementById("added-articles").style.display = "none";
+                 document.getElementById("getoutput").style.display = "block";
+                 document.getElementById('uname').value = person.username;
+                 document.getElementById('fname').value = person.firstname;
+                 document.getElementById('lname').value = person.lastname;
+                 document.getElementById('gender').value = person.gender;
+                 document.getElementById('age').value = person.age;                      
+            }
+           
+            function showData(personArray){
+                var trHTML = '';
+                     for (i = 0; i < personArray.length; i++) {
+                          trHTML += '<tr><td>' + personArray[i].username + '</td><td>' + personArray[i].firstname + '</td><td>' + personArray[i].lastname + '</td><td>' + personArray[i].gender  + '</td><td>' + personArray[i].age  + '</td></tr>';
+                        } 
+                        $('#added-articles').append(trHTML);
+                }
+    
             
          $(document).ready(function () {
              
              
-             //put
-             $.ajax({
-                type: "PUT",
-                async: true,
-                url: "https://services.odata.org/TripPinRESTierService/(S(2yzx01x2sy3s2iexbiibx10q))/People('russellwhyte')",
-                headers: {"Access-Control-Allow-Method": "POST,PUT,DELETE,PATCH"},
-                success: function (data) {
-                    //var filtedPeople = data.value;
-                    //////FINAL VARIANT//////////////////////////////////////
-//                    var jsonArray = JSON.stringify(data.value);
-                    console.log("deleted!"); 
-//                    
-                   
-                    
-                },
-                error: function ( textStatus, errorMessage) {
-                    alert(errorMessage);
-                }
-            });
-            });
+             //PUT
+//             $.ajax({
+//                type: "PUT",
+//                async: true,
+//                url: "https://services.odata.org/TripPinRESTierService/(S(2yzx01x2sy3s2iexbiibx10q))/People('russellwhyte')",
+//                headers: {"Access-Control-Allow-Method": "POST,PUT,DELETE,PATCH"},
+//                success: function (data) {
+//                    //var filtedPeople = data.value;
+//                    //////FINAL VARIANT//////////////////////////////////////
+////                    var jsonArray = JSON.stringify(data.value);
+//                    console.log("deleted!"); 
+////                                   
+//                },
+//                error: function ( textStatus, errorMessage) {
+//                    alert(errorMessage);
+//                }
+//            });
+//            });
              
              //delete
 //             $.ajax({
@@ -125,11 +154,11 @@
 //            });
   //          });
              
-            //GET by Lambda Operators oData Filtering
+            //GET by Lambda Operators oData Filtering  DOESNOT WORK!!!!!!!!!! ADDD LAMDA!!!!!!
 //              $.ajax({
 //                type: "get",
 //                async: true,
-//                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People?$filter=Emails/any(s:startswith(s, 'Laurel'))",
+//                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People?$filter=startswith(UserName, 'a') eq true",
 //                success: function (data) {
 //                    var info = JSON.stringify(data);
 //                    
@@ -216,44 +245,55 @@
 //         });
     
              
-        //GET by ID oData Filtering
+        //GET by ID oData Filtering   PASSED
 //             $.ajax({
 //                type: "get",
 //                async: true,
 //                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People('russellwhyte') ",
 //                success: function (data) {
 //                    var info = JSON.stringify(data);
-//                    
-////                        $.each(info, function (key, data) {
-////                            alert(data.UserName + "," + data.FirstName + "," + data.LastName);
-////                        })
-//                    //alert(JSON.stringify(data));
-//                    //alert(data.ID);
-//                    $('#test').html(info);
+//                    console.log(data);
+//                    displayPerson(createOneObject(data));
 //                },
 //                error: function (xhr, textStatus, errorMessage) {
 //                    alert(errorMessage);
 //                }
 //            });
-    
+//    });
     
    
 
             
          //GET using AJAX Request     
+            $.ajax({
+                type: "GET",
+                async: true,
+                url: "http://samples.databoom.space/api1/sandboxdb/collections/allobjects",
+                success: function (data) {            
+                    showData(getObjects(data));
+                },
+                error: function (textStatus, errorMessage) {
+                    alert(errorMessage);
+                }
+            });
+            });
+             
+             
+              //GET using AJAX Request     
 //            $.ajax({
-//                type: "get",
+//                type: "POST",
 //                async: true,
-//                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People",
+//                url: "http://samples.databoom.space/api1/sandboxdb/collections/allobjects",
+//                headers: {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Headers': 'content-type,Authorization', 'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,MERGE,OPTIONS', 'Access-Control-Allow-Origin': 'file://', 'WWW-Authenticate': 'Basic realm="databoom"'},
 //                success: function (data) {
 //                    //var filtedPeople = data.value;
 //                    //////FINAL VARIANT//////////////////////////////////////
 ////                    var jsonArray = JSON.stringify(data.value);
-////                    console.log(jsonArray);
-////                    
-//                    $.each(data.value, function (key, data) {
-//                           alert(data.UserName + "," + data.FirstName + "," + data.LastName);
-//                        })
+//                    console.log(data);
+//////                    
+////                    $.each(data.value, function (key, data) {
+////                           alert(data.UserName + "," + data.FirstName + "," + data.LastName);
+////                        })
 //                    
 //                },
 //                error: function (xhr, textStatus, errorMessage) {
@@ -263,40 +303,35 @@
 //            });
             
             
-   /*         
             
-            // GET and display info from the 2-d link using Kendo UI framework 
-            $(document).ready(function () {
-                $("#grid").kendoGrid({
-                    dataSource: {
-                        type: "odata",
-                        transport: {
-                            read: "http://samples.databoom.space/api1/sampledb/collections/allobjects",
-                            create: { url: "http://samples.databoom.space/api1/sampledb/collections/allobjects" },
-                            update: { url: "http://samples.databoom.space/api1/sampledb/collections/allobjects" },
-                            destroy: { url: function (data) { 
-                                return "http://samples.databoom.space/api1/sampledb/collections/allobjects(" + data.id + ")";
-                            } }
-                        },
-                        pageSize: 20,
-                        serverPaging: true,
-                        serverFiltering: true,
-                        serverSorting: true,
-                        schema: { model: { id: "id" } }
-                    },
-                    filterable: true, editable: true, toolbar: ["create", "save", "cancel"],
-                    sortable: true,
-                    pageable: true,
-                    columns: ["firstname", "lastname", "username", "gender", "age",
-                          { command: "destroy", title: " ", width: 150 }]
-                });
-            });
-*/
+            
+             //GET and display info from the 2-d link using Kendo UI framework 
+//                $("#grid").kendoGrid({
+//                    dataSource: {
+//                        type: "odata",
+//                        transport: {                                                                                                                                            /*$filter=substringof('person',id)*/  /*$filter=contains(LastName,%27Smith%27)*/
+//                            read: "http://samples.databoom.space/api1/sandboxdb/collections/allobjects?$filter=contains(id,'person')",
+//                            create: { url: "http://samples.databoom.space/api1/sandboxdb/collections/allobjects?$filter=contains(id,'person')" },
+//                            update: { url: "http://samples.databoom.space/api1/sandboxdb/collections/allobjects?$filter=contains(id,'person')" },
+//                            destroy: { url: function (data) { 
+//                                return "http://samples.databoom.space/api1/sandboxdb/collections/allobjects(" + data.id + ")";
+//                            } }
+//                        },
+//                        pageSize: 20,
+//                        serverPaging: true,
+//                        serverFiltering: true,
+//                        serverSorting: true,
+//                        schema: { model: { id: "id" } }
+//                    },
+//                    filterable: true, editable: true, toolbar: ["create", "save", "cancel"],
+//                    sortable: true,
+//                    pageable: true,
+//                    columns: ["id", "name", "wife", "collections", "age",
+//                          { command: "destroy", title: " ", width: 150 }]
+//                });
+//            });
+
         </script>
-<!--
-        <script type="text/javascript" src="js/odatajs-4.0.0.min.js"></script>
-        <script type="text/javascript" src="js/o.min.js"></script>
--->
     </div>
 </body>
 </html>
