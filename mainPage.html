@@ -4,35 +4,45 @@
             JS Personal Task - Alena Shaadt
         </title> 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <style>
+            input[type=text] {
+              width: 100%;
+              padding: 12px 20px;
+              margin: 8px 0;
+              display: inline-block;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              box-sizing: border-box;
+            }
+            div {
+              border-radius: 5px;
+              background-color: #f2f2f2;
+              padding: 20px;
+            }
+        </style>
     </head>
     <body>
         <table id="navigation">
-        <tr>
-            <th><button id="id" type="button" class="btn btn-warning">oData ID Filtering</button></th>
-            <th><button id="search" type="button" class="btn btn-warning">oData Search Filtering</button></th>
-            <th><button id="select" type="button" class="btn btn-warning">oData Select Filtering</button></th>
-            <th><button id="lambda" type="button" class="btn btn-warning">oData Lambda Filtering</button></th>
-            <th style="position: absolute; right:5px"><a class="btn btn-primary" href="onePageApp.html">Back</a></th>
-        </tr>
-    </table>
-        <table id="added-articles" class="table" >
             <tr>
-<!--                OUTPUT CHANGE BACAUSE IT ADDING TO THE PREVIOUS-->
-                <th>User Name</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Gender</th>
-                <th>Age</th>
+                <th><button id="id" type="button" class="btn btn-warning">oData ID Filtering</button></th>
+                <th><button id="search" type="button" class="btn btn-warning">oData Search Filtering</button></th>
+                <th><button id="select" type="button" class="btn btn-warning">oData Select Filtering</button></th>
+                <th><button id="lambda" type="button" class="btn btn-warning">oData Lambda Filtering</button></th>
+                <th style="position: absolute; right:5px"><a class="btn btn-primary" href="onePageApp.html">Back</a></th>
             </tr>
         </table>
-<!--                    ADD SOME DESIGN-->
-        <form id="getoutput"  style="display: none">
-          User Name: <input type="text" id="uname" value="" disabled><br>
-          First Name: <input type="text" id="fname" value="" disabled><br>
-          Last name: <input type="text" id="lname" value="" disabled><br>
-          Gender: <input type="text" id="gender" value="" disabled><br>
-          Age: <input type="text" id="age" disabled><br>
-        </form> 
+        <table id="added-articles" class="w3-table w3-striped w3-bordered">
+        </table>
+        <div>
+            <form id="getoutput"  style="display: none">
+              User Name: <input type="text" id="uname" value="" disabled><br>
+              First Name: <input type="text" id="fname" value="" disabled><br>
+              Last name: <input type="text" id="lname" value="" disabled><br>
+              Gender: <input type="text" id="gender" value="" disabled><br>
+              Age: <input type="text" id="age" disabled><br>
+            </form> 
+        </div>
         <script type="text/javascript" src="js/q.js"></script>
         <script type="text/javascript" src="js/o.min.js"></script>
         <script type="text/javascript" src="js/odatajs-4.0.0.min.js"></script>
@@ -72,15 +82,18 @@
             }
            
             function showData(personArray){
-               // $("#added-articles").remove(); 
-                var trHTML = ''/*'<tr><th>User Name</th><th>First Name</th><th>Last Name</th><th>Gender</th><th>Age</th></tr>'*/;
+                var trHTML = '<tr><th>User Name</th><th>First Name</th><th>Last Name</th><th>Gender</th><th>Age</th></tr>';
                      for (i = 0; i < personArray.length; i++) {
                           trHTML += '<tr><td>' + personArray[i].username + '</td><td>' + personArray[i].firstname + '</td><td>' + personArray[i].lastname + '</td><td>' + personArray[i].gender  + '</td><td>' + personArray[i].age  + '</td></tr>';
                         } 
                         $('#added-articles').append(trHTML);
                 }
             
-
+            function basicConfig(){
+                  document.getElementById("getoutput").style.display = "none";
+                  document.getElementById("added-articles").style.display = "block";
+                  document.getElementById("added-articles").innerHTML = "";
+            }
             
              //GET by ID ODATA Filtering   
             $('#id').on('click', function() {
@@ -106,8 +119,7 @@
                 async: true,
                 url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People?$search=Male",
                 success: function (data) {
-                    document.getElementById("getoutput").style.display = "none";
-                    document.getElementById("added-articles").style.display = "block";
+                    basicConfig();
                     showData(createObjectsArray(data));
                 },
                 error: function (xhr, textStatus, errorMessage) {
@@ -123,8 +135,7 @@
                 async: true,
                 url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People?$select=UserName, Gender",
                 success: function (data) {  
-                    document.getElementById("getoutput").style.display = "none";
-                    document.getElementById("added-articles").style.display = "block";
+                    basicConfig();
                     showData(createObjectsArray(data));
                 },
                 error: function (xhr, textStatus, errorMessage) {
@@ -140,8 +151,7 @@
                 async: true,
                 url: "https://services.odata.org/V4/TripPinServiceRW/People?$filter=Emails/any(s:endswith(s, 'contoso.com'))",
                 success: function (data) {
-                    document.getElementById("getoutput").style.display = "none";
-                    document.getElementById("added-articles").style.display = "block";
+                    basicConfig();
                     showData(createObjectsArray(data));
                 },
                 error: function (xhr, textStatus, errorMessage) {
@@ -149,10 +159,6 @@
                 }
             });
             });
-              
-            
-            
-
         </script>
     </body>
 </html>
