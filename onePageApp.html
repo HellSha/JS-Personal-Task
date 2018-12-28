@@ -2,336 +2,208 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <base href="http://demos.telerik.com/kendo-ui/grid/remote-data-binding">
-    <style>html {font-size: 12px;font-family: Arial, Helvetica, sans-serif;}
-        body {margin: 0;}
-    </style>
-    <title></title>
+    <title>AJAX Requests</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.3.1316/styles/kendo.common.min.css" />
-    <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.3.1316/styles/kendo.default.min.css" />
-
     <script src="http://cdn.kendostatic.com/2014.3.1316/js/jquery.min.js"></script>
-    <script src="http://cdn.kendostatic.com/2014.3.1316/js/kendo.all.min.js"></script>
 </head>
 <body>
     <table id="navigation">
         <tr>
-            <th><button id="odataPage" type="button" class="btn btn-primary">oData Testing</button></th>
-            <th><button id="odataPage" type="button" class="btn btn-primary">oData Testing</button></th>
-            <th><button id="odataPage" type="button" class="btn btn-primary">oData Testing</button></th>
-            <th><button id="odataPage" type="button" class="btn btn-primary">oData Testing</button></th>
+            <th><button id="get" type="button" class="btn btn-primary">GET Request</button></th>
+            <th><button id="prepost" type="button" class="btn btn-primary">POST Request</button></th>
+            <th><button id="preput" type="button" class="btn btn-primary">PUT Request</button></th>
+            <th><button id="delete" type="button" class="btn btn-primary">DELETE Request</button></th>
+            <th><button id="patch" type="button" class="btn btn-primary">PATCH Request</button></th>
+            <th style="position: absolute; right:5px"><a class="btn btn-warning" href="mainPage.html">oData Filters</a></th>
         </tr>
     </table>
-    
-    
-    <table id="added-articles" class="table">
+    <form id="postobject" style="display:none;" name="postform" onsubmit="return checkForm(this)">
+         <div class="form-group">
+          <label for="id">Book ID:</label>
+          <input class="form-control" type="text" name=id id="id" value=""><br>
+        </div>
+        <div class="form-group">
+          <label for="title">Book Title:</label>
+          <input class="form-control" type="text" name=title id="title" value=""><br>
+        </div>
+        <div class="form-group">
+          <label for="author">Book Author:</label>
+          <input class="form-control" type="text" name=author id="author" value="" ><br>
+        </div>
+        <div class="form-group">
+          <label for="publisher">Book Publisher:</label>
+          <input class="form-control" type="text" name=publisher id="publisher" value=""><br>
+        </div>
+        <input class="btn btn-default" type="submit" name=sendPost id="sendPost" value="Send Data"><br>
+    </form> 
+    <table id="added-articles" class="table" style="display:none">
             <tr>
-                <th>User Name</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Gender</th>
-                <th>Age</th>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publisher</th>
             </tr>
     </table>
-    ПОКАЗАТЬ ФОРМУ ТОЛЬКО ЕСЛИ НУЖНО: ДЛИНА МАССИВА РАВНА 1
-     <form id="getoutput" style="display:none">
-          User Name: <input type="text" id="uname" value="" disabled><br>
-          First Name: <input type="text" id="fname" value="" disabled><br>
-          Last name: <input type="text" id="lname" value="" disabled><br>
-          Gender: <input type="text" id="gender" value="" disabled><br>
-          Age: <input type="text" id="age" disabled><br>
-</form> 
-    <div id="test"></div>
-    <div id="example">
-        <div id="grid"></div>
-        
-        <script>
-            function Person(username, firstname, lastname, gender, age) {
-              this.username = username;
-              this.firstname = firstname;
-              this.lastname = lastname;
-              this.gender = gender;
-              this.age = age;
+    <form id="getoutput" style="display:none">
+          Book id: <input type="text" id="id" value="" disabled><br>
+          Book name: <input type="text" id="title" value="" disabled><br>
+          Author: <input type="text" id="author" value="" disabled><br>
+          Publisher: <input type="text" id="publisher" value="" disabled><br>
+    </form> 
+    <form id="putobject" name="putform" style="display:none;">
+        <div class="form-group">
+          <label for="id">Change Book Title to:</label>
+          <input class="form-control" type="text" name=bookTitle id="booktitleput" value="" disabled><br>
+            <input class="btn btn-default" type="submit" name=sendPut id="sendPut" value="Change Book Title"><br>
+        </div>
+    </form>
+  <script>
+            function Book(id, title, author, publisher) {
+              this.id = id;
+              this.title = title;
+              this.author = author;
+              this.publisher = publisher;
             }
             
             function createObjectsArray(data){
-                var personsArray = [];                    
-                    $.each(data.value, function (key, data) {
-                        var person = new Person(data.UserName, data.FirstName, data.LastName, data.Gender, data.Age);
-                            personsArray.push(person);
+                var bookArray = [];                    
+                    $.each(data.d.results, function (key, data) {
+                        var book = new Book(data.id, data.title, data.author, data.publisher);
+                            bookArray.push(book);
                         })
-                return personsArray;
+                return bookArray;
             }
             
             function createOneObject(data){
-                 var person = new Person(data.UserName, data.FirstName, data.LastName, data.Gender, data.Age);
-                return person;
+                 var book = new Book(data.id, data.title, data.author, data.publisher);
+                return book;
             }
             
-            function displayPerson(person){
+            function displayBook(book){
                  document.getElementById("added-articles").style.display = "none";
                  document.getElementById("getoutput").style.display = "block";
-                 document.getElementById('uname').value = person.username;
-                 document.getElementById('fname').value = person.firstname;
-                 document.getElementById('lname').value = person.lastname;
-                 document.getElementById('gender').value = person.gender;
-                 document.getElementById('age').value = person.age;                      
+                 document.getElementById('id').value = book.id;
+                 document.getElementById('title').value = book.title;
+                 document.getElementById('author').value = book.author;
+                 document.getElementById('publisher').value = book.publisher;                     
             }
            
-            function showData(personArray){
+            function showData(bookArray){
+                document.getElementById("added-articles").style.display = "block";
+                document.getElementById("getoutput").style.display = "none";
+                document.getElementById("postobject").style.display = "none";
                 var trHTML = '';
-                     for (i = 0; i < personArray.length; i++) {
-                          trHTML += '<tr><td>' + personArray[i].username + '</td><td>' + personArray[i].firstname + '</td><td>' + personArray[i].lastname + '</td><td>' + personArray[i].gender  + '</td><td>' + personArray[i].age  + '</td></tr>';
+                     for (i = 0; i < bookArray.length; i++) {
+                          trHTML += '<tr><td>' + bookArray[i].id + '</td><td>' + bookArray[i].title + '</td><td>' + bookArray[i].author + '</td><td>' + bookArray[i].publisher  + '</td></tr>';
                         } 
                         $('#added-articles').append(trHTML);
                 }
-    
             
-         $(document).ready(function () {
-             
-             
-             //PUT
-//             $.ajax({
-//                type: "PUT",
-//                async: true,
-//                url: "https://services.odata.org/TripPinRESTierService/(S(2yzx01x2sy3s2iexbiibx10q))/People('russellwhyte')",
-//                headers: {"Access-Control-Allow-Method": "POST,PUT,DELETE,PATCH"},
-//                success: function (data) {
-//                    //var filtedPeople = data.value;
-//                    //////FINAL VARIANT//////////////////////////////////////
-////                    var jsonArray = JSON.stringify(data.value);
-//                    console.log("deleted!"); 
-////                                   
-//                },
-//                error: function ( textStatus, errorMessage) {
-//                    alert(errorMessage);
-//                }
-//            });
-//            });
-             
-             //delete
-//             $.ajax({
-//                type: "DELETE",
-//                async: true,
-//                url: "http://samples.databoom.space/api1/sampledb/collections/allobjects('book38')",
-//                headers: {"Access-Control-Allow-Method": "POST,PUT,DELETE,PATCH"},
-//                success: function (data) {
-//                    //var filtedPeople = data.value;
-//                    //////FINAL VARIANT//////////////////////////////////////
-////                    var jsonArray = JSON.stringify(data.value);
-//                    console.log("deleted!"); 
-////                    
-//                   
-//                    
-//                },
-//                error: function (textStatus, errorMessage) {
-//                    alert(errorMessage);
-//                }
-//            });
-//            });
-             
-             //PATCH   
-//            $.ajax({
-//                type: "PATCH",
-//                async: true,
-//                url: "http://samples.databoom.space/api1/sampledb/collections/allobjects('book38')",
-//                headers: {"Access-Control-Allow-Method": "POST,PUT,DELETE,PATCH"},
-//                success: function (data) {
-//                    //var filtedPeople = data.value;
-//                    //////FINAL VARIANT//////////////////////////////////////
-////                    var jsonArray = JSON.stringify(data.value);
-////                    console.log(jsonArray); 
-////                    
-//                    $.each(data.value, function (key, data) {
-//                           alert(data.id);
-//                        })
-//                    
-//                },
-//                error: function (xhr, textStatus, errorMessage) {
-//                    alert(errorMessage);
-//                }
-//            });
-  //          });
-             
-            //GET by Lambda Operators oData Filtering  DOESNOT WORK!!!!!!!!!! ADDD LAMDA!!!!!!
-//              $.ajax({
-//                type: "get",
-//                async: true,
-//                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People?$filter=startswith(UserName, 'a') eq true",
-//                success: function (data) {
-//                    var info = JSON.stringify(data);
-//                    
-////                        $.each(info, function (key, data) {
-////                            alert(data.UserName + "," + data.FirstName + "," + data.LastName);
-////                        })
-//                    alert(JSON.stringify(data));
-//                    //alert(data.ID);
-//                    $('#test').html(info);
-//                },
-//                error: function (xhr, textStatus, errorMessage) {
-//                    alert(errorMessage);
-//                }
-//            });
-//         });
-             
-             
-                         
-             ////CORP ERROR IN POST REQUEST
-//             var WEBSERVICE_URL = "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People";
-//                $.ajax({
-//                    url: WEBSERVICE_URL,
-//                    type: "POST",
-//                    dataType: "json",
-//                    username: "user",
-//                    password: "password",
-//                    processData: false,
-//             crossDomain: true,
-//                    contentType: "application/json",
-//                    success: function () {
-//                        alert("success");
-//                    },
-//                    error: function (xhr, ajaxOptions, thrownError) { //Add these parameters to display the required response
-//                        alert(xhr.status);
-//                        alert(xhr.responseText);
-//                    },
-//                });
-             
-             
-             //works good 
-        //GET by Search oData Filtering
-//             $.ajax({
-//                type: "get",
-//                async: true,
-//                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People?$search=Male",
-//                success: function (data) {
-//                    //var info = JSON.stringify(data);
-//                    console.log(data);
-//                    showData(getObjects(data));
-//                    
-////                        $.each(info, function (key, data) {
-////                            alert(data.UserName + "," + data.FirstName + "," + data.LastName);
-////                        })
-//                    //alert(JSON.stringify(data));
-//                    //alert(data.ID);
-//                    //$('#test').html(info);
-//                },
-//                error: function (xhr, textStatus, errorMessage) {
-//                    alert(errorMessage);
-//                }
-//            });
-//            });
-//             
-             
-//        //GET by Select oData Filtering
-//              $.ajax({
-//                type: "get",
-//                async: true,
-//                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People?$select=UserName, Gender",
-//                success: function (data) {
-//                    var info = JSON.stringify(data);
-//                    
-//                        $.each(info, function (key, data) {
-//                            alert(data.UserName + "," + data.FirstName + "," + data.LastName);
-//                        })
-//                    //alert(JSON.stringify(data));
-//                    //alert(data.ID);
-//                    $('#test').html(info);
-//                },
-//                error: function (xhr, textStatus, errorMessage) {
-//                    alert(errorMessage);
-//                }
-//            });
-//         });
-    
-             
-        //GET by ID oData Filtering   PASSED
-//             $.ajax({
-//                type: "get",
-//                async: true,
-//                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People('russellwhyte') ",
-//                success: function (data) {
-//                    var info = JSON.stringify(data);
-//                    console.log(data);
-//                    displayPerson(createOneObject(data));
-//                },
-//                error: function (xhr, textStatus, errorMessage) {
-//                    alert(errorMessage);
-//                }
-//            });
-//    });
-    
-   
+            function checkForm(form)
+            {
+              for (var i = 0; i < form.elements.length; i++)
+              if (form.elements[i].value == '')
+            {
+              alert ('Please, fill in all of the fields!');
+              return false;
+            }
+            }
 
-            
-         //GET using AJAX Request     
-            $.ajax({
-                type: "GET",
-                async: true,
-                url: "http://samples.databoom.space/api1/sandboxdb/collections/allobjects",
-                success: function (data) {            
-                    showData(getObjects(data));
-                },
-                error: function (textStatus, errorMessage) {
-                    alert(errorMessage);
-                }
-            });
-            });
              
+                    //PATCH 
+            var bookItemTitlePatch = {title: "alenaChangedByPatch"};
+                $('#patch').on('click', function() {
+                     $.ajax({
+                      url: "https://samples.databoom.space/api1/sandboxdb/collections/books?$filter=title eq 'alena'",
+                      type: 'PATCH',
+                      data: JSON.stringify(bookItemTitlePatch),
+                      contentType: "application/json",
+                        success: function (data) {
+                            console.log(data);                    
+                        },
+                        error: function (xhr, textStatus, errorMessage) {
+                            alert(errorMessage);
+                        }
+                    });
+                });
+            
+                    //DELETE
+                $('#delete').on('click', function() {
+                  $.ajax({
+                      url: "https://samples.databoom.space/api1/sandboxdb/collections/books(book38)",
+                      type: 'DELETE',
+                      //data: JSON.stringify(bookItemTitle),
+                      contentType: "application/json", 
+                      success: function (data) {
+                        alert("Book was successfully deleted!")
+                        console.log("deleted!"); 
+                    },
+                    error: function (textStatus, errorMessage) {
+                        alert(errorMessage);
+                    }
+                  });
+                });
+            
+                var bookItemTitlePut = {title: "alenaChangedByPut"};
              
-              //GET using AJAX Request     
-//            $.ajax({
-//                type: "POST",
-//                async: true,
-//                url: "http://samples.databoom.space/api1/sandboxdb/collections/allobjects",
-//                headers: {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Headers': 'content-type,Authorization', 'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,MERGE,OPTIONS', 'Access-Control-Allow-Origin': 'file://', 'WWW-Authenticate': 'Basic realm="databoom"'},
-//                success: function (data) {
-//                    //var filtedPeople = data.value;
-//                    //////FINAL VARIANT//////////////////////////////////////
-////                    var jsonArray = JSON.stringify(data.value);
-//                    console.log(data);
-//////                    
-////                    $.each(data.value, function (key, data) {
-////                           alert(data.UserName + "," + data.FirstName + "," + data.LastName);
-////                        })
-//                    
-//                },
-//                error: function (xhr, textStatus, errorMessage) {
-//                    alert(errorMessage);
-//                }
-//            });
-//            });
+             $('#preput').on('click', function() {
+                document.getElementById("postobject").style.display = "none";
+                document.getElementById("added-articles").style.display = "none";
+                document.getElementById("putobject").style.display = "block";
+                document.getElementById("booktitleput").value = bookItemTitlePut.title;
+             });
+                    //PUT
+                $('#sendPut').on('click', function() {
+                      $.ajax({
+                      url: "https://samples.databoom.space/api1/sandboxdb/collections/books?$filter=title eq 'book5'",
+                      type: 'PUT',
+                      data: JSON.stringify(bookItemTitlePut),
+                      contentType: "application/json", 
+                      success: function(data) {
+                       console.log(data);
+                      },
+                      error: function (textStatus, errorMessage) {
+                      alert(errorMessage);
+                    }
+                    });
+                 });
             
+             $('#prepost').on('click', function() {
+                document.getElementById("postobject").style.display = "block";
+                document.getElementById("added-articles").style.display = "none";
+             });
             
-            
-            
-             //GET and display info from the 2-d link using Kendo UI framework 
-//                $("#grid").kendoGrid({
-//                    dataSource: {
-//                        type: "odata",
-//                        transport: {                                                                                                                                            /*$filter=substringof('person',id)*/  /*$filter=contains(LastName,%27Smith%27)*/
-//                            read: "http://samples.databoom.space/api1/sandboxdb/collections/allobjects?$filter=contains(id,'person')",
-//                            create: { url: "http://samples.databoom.space/api1/sandboxdb/collections/allobjects?$filter=contains(id,'person')" },
-//                            update: { url: "http://samples.databoom.space/api1/sandboxdb/collections/allobjects?$filter=contains(id,'person')" },
-//                            destroy: { url: function (data) { 
-//                                return "http://samples.databoom.space/api1/sandboxdb/collections/allobjects(" + data.id + ")";
-//                            } }
-//                        },
-//                        pageSize: 20,
-//                        serverPaging: true,
-//                        serverFiltering: true,
-//                        serverSorting: true,
-//                        schema: { model: { id: "id" } }
-//                    },
-//                    filterable: true, editable: true, toolbar: ["create", "save", "cancel"],
-//                    sortable: true,
-//                    pageable: true,
-//                    columns: ["id", "name", "wife", "collections", "age",
-//                          { command: "destroy", title: " ", width: 150 }]
-//                });
-//            });
-
+                    //POST 
+                $('#sendPost').on('click', function() {
+                    var book = new Book(document.forms["postform"].id.value, document.forms["postform"].title.value, document.forms["postform"].author.value, document.forms["postform"].publisher.value);
+                    $.ajax({
+                    url: "https://samples.databoom.space/api1/sandboxdb/collections/books",
+                    type: "POST",
+                    data: JSON.stringify(book),
+                    contentType: "application/json",   
+                    success: function (data, textStatus) {
+                        console.log(data);
+                        },
+                    error: function (textStatus, errorMessage) {
+                        alert(errorMessage);
+                    }
+                    }); 
+                });
+                
+                    // GET 
+                $('#get').on('click', function() {
+                   $.ajax({
+                    type: "GET",
+                    url: 'https://samples.databoom.space/api1/sandboxdb/collections/books',       
+                    dataType : "json",                   
+                    success: function (data, textStatus) { 
+                          $.each(data, function(i, val) { 
+                                showData(createObjectsArray(data));
+                                console.log(data);
+                          });
+                        }
+                    });
+                });
         </script>
-    </div>
 </body>
 </html>

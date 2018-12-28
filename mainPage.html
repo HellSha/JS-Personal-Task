@@ -6,73 +6,151 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     </head>
     <body>
-        <div id="result" data-bind="text : name"></div>
-        <button data-bind="click: loadData">Click me...</button>
+        <table id="navigation">
+        <tr>
+            <th><button id="id" type="button" class="btn btn-warning">oData ID Filtering</button></th>
+            <th><button id="search" type="button" class="btn btn-warning">oData Search Filtering</button></th>
+            <th><button id="select" type="button" class="btn btn-warning">oData Select Filtering</button></th>
+            <th><button id="lambda" type="button" class="btn btn-warning">oData Lambda Filtering</button></th>
+            <th style="position: absolute; right:5px"><a class="btn btn-primary" href="onePageApp.html">Back</a></th>
+        </tr>
+    </table>
+        <table id="added-articles" class="table" >
+            <tr>
+                <th>User Name</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Gender</th>
+                <th>Age</th>
+            </tr>
+        </table>
+        <form id="getoutput"  style="display: none">
+          User Name: <input type="text" id="uname" value="" disabled><br>
+          First Name: <input type="text" id="fname" value="" disabled><br>
+          Last name: <input type="text" id="lname" value="" disabled><br>
+          Gender: <input type="text" id="gender" value="" disabled><br>
+          Age: <input type="text" id="age" disabled><br>
+        </form> 
         <script type="text/javascript" src="js/q.js"></script>
         <script type="text/javascript" src="js/o.min.js"></script>
         <script type="text/javascript" src="js/odatajs-4.0.0.min.js"></script>
-        <script type="text/javascript" src="js/knockout-3.2.0.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script>
-            function Book(id, title) {
-                this.id = id;
-                this.title = title;
+            
+           function Person(username, firstname, lastname, gender, age) {
+              this.username = username;
+              this.firstname = firstname;
+              this.lastname = lastname;
+              this.gender = gender;
+              this.age = age;
             }
-
-            function BookViewModel() {
-                this.id = ko.observable('defaultID');
-                this.title = ko.observable('defaultTitle');
-                //this.author = ko.observable('defaultAuthor');
-            loadData = function(){                      
-                // WORKED   
-//                    o('https://services.odata.org/V4/(S(wptr35qf3bz4kb5oatn432ul))/TripPinServiceRW/People(\'Russell Whyte\')').get().then(function(result) {
-//                    result.data.FirstName = 'New Name';
-//                    return(result.save());
-//                }).then(function(result) {
-//                    console.log('First name is now New Name');
-//                });
-                
-                o().config({
-	endpoint: 'http://samples.databoom.space/api1/sampledb/collections/allobjects'
-});
-                //WORKED POST 
-//            o('People').post({
-//            UserName:'nametest',
-//            FirstName:'foo',
-//            LastName:'bar'
-//    }).save().then(function(result) {
-//                alert('User created successfully!');
-//            });
-                
-//                o('People').delete({
-//            UserName:'nametest',
-//    }).save().then(function(result) {
-////    }).then(function(result) {
-////        result.delete();
-////        return(result.save());
-////    }).then(function() {
-//       console.log('A person was deleted.');
-//                    
-//    }); 
-                //POST, PUT AND DELETE
-            o('').post({
-            id:'test',
-            title:'testtitle'
-    }).save().then(function(result) {
-         var oHandler = o('')
-            .find(('\'' + result.data.id + '\''))
-            .patch({ id: 'new id' });
-        return(oHandler.save());
-    }).then(function(result) {
-        result.delete();
-        return(result.save());
-    }).then(function() {
-       console.log('A person was added, modified and deleted.');
-    });
-            }
+        
+            function createObjectsArray(data){
+                var personsArray = [];                    
+                    $.each(data.value, function (key, data) {
+                        var person = new Person(data.UserName, data.FirstName, data.LastName, data.Gender, data.Age);
+                            personsArray.push(person);
+                        })
+                return personsArray;
             }
             
-            ko.applyBindings(BookViewModel);
+            function createOneObject(data){
+                 var person = new Person(data.UserName, data.FirstName, data.LastName, data.Gender, data.Age);
+                return person;
+            }
+            
+            function displayPerson(person){
+                 document.getElementById("added-articles").style.display = "none";
+                 document.getElementById("getoutput").style.display = "block";
+                 document.getElementById('uname').value = person.username;
+                 document.getElementById('fname').value = person.firstname;
+                 document.getElementById('lname').value = person.lastname;
+                 document.getElementById('gender').value = person.gender;
+                 document.getElementById('age').value = person.age;                      
+            }
+           
+            function showData(personArray){
+               // $("#added-articles").remove(); 
+                var trHTML = ''/*'<tr><th>User Name</th><th>First Name</th><th>Last Name</th><th>Gender</th><th>Age</th></tr>'*/;
+                     for (i = 0; i < personArray.length; i++) {
+                          trHTML += '<tr><td>' + personArray[i].username + '</td><td>' + personArray[i].firstname + '</td><td>' + personArray[i].lastname + '</td><td>' + personArray[i].gender  + '</td><td>' + personArray[i].age  + '</td></tr>';
+                        } 
+                        $('#added-articles').append(trHTML);
+                }
+            
+
+            
+             //GET by ID ODATA Filtering   
+            $('#id').on('click', function() {
+             $.ajax({
+                type: "get",
+                async: true,
+                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People('russellwhyte') ",
+                success: function (data) {
+                    document.getElementById("getoutput").style.display = "block";
+                    document.getElementById("added-articles").style.display = "none";
+                    displayPerson(createOneObject(data));
+                },
+                error: function (xhr, textStatus, errorMessage) {
+                    alert(errorMessage);
+                }
+            });
+            });
+                
+                //GET by Search oData Filtering
+            $('#search').on('click', function() {
+             $.ajax({
+                type: "get",
+                async: true,
+                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People?$search=Male",
+                success: function (data) {
+                    document.getElementById("getoutput").style.display = "none";
+                    document.getElementById("added-articles").style.display = "block";
+                    showData(createObjectsArray(data));
+                },
+                error: function (xhr, textStatus, errorMessage) {
+                    alert(errorMessage);
+                }
+            });
+            });
+            
+               //GET by Select oData Filtering
+             $('#select').on('click', function() {
+              $.ajax({
+                type: "get",
+                async: true,
+                url: "https://services.odata.org/TripPinRESTierService/(S(4wlafkqltwri0bjgbcod1ckv))/People?$select=UserName, Gender",
+                success: function (data) {  
+                    document.getElementById("getoutput").style.display = "none";
+                    document.getElementById("added-articles").style.display = "block";
+                    showData(createObjectsArray(data));
+                },
+                error: function (xhr, textStatus, errorMessage) {
+                    alert(errorMessage);
+                }
+            });
+             });
+     
+                 //GET by Lambda Operators oData Filtering  
+            $('#lambda').on('click', function() {
+              $.ajax({
+                type: "get",
+                async: true,
+                url: "https://services.odata.org/V4/TripPinServiceRW/People?$filter=Emails/any(s:endswith(s, 'contoso.com'))",
+                success: function (data) {
+                    document.getElementById("getoutput").style.display = "none";
+                    document.getElementById("added-articles").style.display = "block";
+                    showData(createObjectsArray(data));
+                },
+                error: function (xhr, textStatus, errorMessage) {
+                    alert(errorMessage);
+                }
+            });
+            });
+              
+            
+            
+
         </script>
     </body>
 </html>
